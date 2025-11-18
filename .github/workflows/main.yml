@@ -1,0 +1,42 @@
+name: Construir APK Android
+on:
+  workflow_dispatch: # Esto permite activar la construcción con un botón manual
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Usamos un ordenador Linux virtual
+
+    steps:
+      # 1. Descargar tu código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Instalar Python y Flutter (necesario para Flet)
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0' # Versión estable compatible
+
+      # 3. Instalar las librerías (Flet)
+      - name: Install dependencies
+        run: |
+          pip install flet
+          pip install -r requirements.txt
+
+      # 4. El comando mágico: Convertir a APK
+      - name: Build APK
+        run: |
+          # Flet necesita iniciar un proyecto para compilar
+          flet build apk --verbose
+
+      # 5. Guardar el archivo resultante para que lo puedas descargar
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ListaCompraApp
+          path: build/apk/app-release.apk
